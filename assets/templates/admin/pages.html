@@ -1,0 +1,13 @@
+<html>
+    <head>
+        <title>Pages</title>
+    </head>
+
+    <body>
+      <ul>
+        {{ range .pages }}
+        <li>{{ .Title }}</li>
+        {{ end }}
+      </ul>
+    </body>
+</html>

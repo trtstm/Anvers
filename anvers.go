@@ -17,6 +17,7 @@ type Config struct {
 type Anvers struct {
 	plugins   []Plugin
 	AdminMenu *AdminMenuEntry
+	Router    *chi.Mux
 }
 
 // NewAnvers creates a new cms.
@@ -24,6 +25,7 @@ func NewAnvers(config *Config) *Anvers {
 	a := &Anvers{
 		plugins:   []Plugin{},
 		AdminMenu: newAdminMenu(),
+		Router:    chi.NewRouter(),
 	}
 
 	for _, p := range config.Plugins {
@@ -40,13 +42,12 @@ func (a *Anvers) Start() {
 		p.Register(a)
 	}
 
-	r := chi.NewRouter()
-	r.Get("/admin", func(w http.ResponseWriter, r *http.Request) {
+	a.Router.Get("/admin", func(w http.ResponseWriter, r *http.Request) {
 		t := template.Must(template.ParseFiles("../../assets/templates/admin/dashboard.html"))
 		fmt.Println(t.Execute(w, map[string]interface{}{
 			"Anvers": a,
 		}))
 	})
 
-	http.ListenAndServe(":3000", r)
+	http.ListenAndServe(":3000", a.Router)
 }
