@@ -1,16 +1,17 @@
 package main
 
 import (
+	"github.com/trtstm/anvers/contenttype"
+
 	"github.com/trtstm/anvers"
-	"github.com/trtstm/anvers/plugins/posts"
 )
 
 func main() {
-	a := anvers.New(anvers.AnversConfig{
+	cms := anvers.NewAnvers(&anvers.Config{
 		Plugins: []anvers.Plugin{
-			posts.NewPage(),
+			&contenttype.PagePlugin{},
 		},
 	})
 
-	a.Load()
+	cms.Start()
 }

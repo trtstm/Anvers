@@ -1,37 +1,52 @@
 package anvers
 
-type AnversConfig struct {
+import (
+	"fmt"
+	"html/template"
+	"net/http"
+
+	"github.com/go-chi/chi"
+)
+
+// Config contains configuration options for the cms.
+type Config struct {
 	Plugins []Plugin
 }
 
-type Context struct {
-	Anvers          *Anvers
-	PluginRegistrar *Registrar
-}
-
+// Anvers is our main struct. It wraps the cms.
 type Anvers struct {
-	pluginRegistrar *Registrar
-	config          AnversConfig
-
-	Context Context
+	plugins   []Plugin
+	AdminMenu *AdminMenuEntry
 }
 
-func New(config AnversConfig) *Anvers {
-	a := &Anvers{}
-	a.pluginRegistrar = NewRegistrar(a)
-	a.config = config
-	a.Context = Context{
-		Anvers:          a,
-		PluginRegistrar: a.pluginRegistrar,
+// NewAnvers creates a new cms.
+func NewAnvers(config *Config) *Anvers {
+	a := &Anvers{
+		plugins:   []Plugin{},
+		AdminMenu: newAdminMenu(),
+	}
+
+	for _, p := range config.Plugins {
+		p.Install(a)
+		a.plugins = append(a.plugins, p)
 	}
 
 	return a
 }
 
-func (a *Anvers) PluginRegistrar() *Registrar {
-	return a.pluginRegistrar
-}
+// Start starts the cms.
+func (a *Anvers) Start() {
+	for _, p := range a.plugins {
+		p.Register(a)
+	}
 
-func (a *Anvers) Load() {
-	a.pluginRegistrar.Load(a.config.Plugins)
+	r := chi.NewRouter()
+	r.Get("/admin", func(w http.ResponseWriter, r *http.Request) {
+		t := template.Must(template.ParseFiles("../../assets/templates/admin/dashboard.html"))
+		fmt.Println(t.Execute(w, map[string]interface{}{
+			"Anvers": a,
+		}))
+	})
+
+	http.ListenAndServe(":3000", r)
 }

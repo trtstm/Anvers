@@ -1,0 +1,33 @@
+<html>
+    <head>
+        <title>Anvers dashboard</title>
+    </head>
+
+    <body>
+        <p>Hello world!</p>
+
+        {{ with .Anvers }}
+        <ul>
+            {{ range .AdminMenu.GetEntries }}
+            <li>
+                <a {{ if .Link }} href="{{ .Link }}" {{ else }} href="#" {{ end }}>{{ .Title }}</a>
+                <ul>
+                {{ range .GetEntries }}
+                    <li>
+                        <a {{ if .Link }} href="{{ .Link }}" {{ else }} href="#" {{ end }}>{{ .Title }}</a>
+                        <ul>
+                            {{ range .GetEntries }}
+                                <li>
+                                    <a {{ if .Link }} href="{{ .Link }}" {{ else }} href="#" {{ end }}>{{ .Title }}</a>
+                                </li>
+                            {{ end }}
+                            </ul>
+                    </li>
+                {{ end }}
+                </ul>
+            </li>
+            {{ end }}
+        </ul>
+        {{ end }}
+    </body>
+</html>
